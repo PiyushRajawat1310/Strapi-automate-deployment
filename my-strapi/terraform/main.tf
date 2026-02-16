@@ -33,12 +33,30 @@ resource "aws_instance" "strapi_server" {
 
   user_data = <<-EOF
 #!/bin/bash
+set -eux
+
+# Update system
 apt-get update -y
+
+# Install Docker
 apt-get install -y docker.io
+
+# Start & enable Docker
 systemctl start docker
 systemctl enable docker
+
+# Wait for Docker to be fully ready
+until docker info >/dev/null 2>&1; do
+  sleep 3
+done
+
+# Pull image
 docker pull ${var.docker_image}
+
+# Remove old container if exists
 docker rm -f strapi || true
+
+# Run Strapi container
 docker run -d \
   -e HOST=0.0.0.0 \
   -e PORT=1337 \
@@ -47,6 +65,7 @@ docker run -d \
   --name strapi \
   ${var.docker_image}
 EOF
+
 
   tags = {
     Name = "Strapi-Server"
