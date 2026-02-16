@@ -23,7 +23,7 @@ jobs:
         id: meta
         run: |
           TAG=$(date +%s)
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/strapi:$TAG .
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/strapi:$TAG ./my-strapi
           echo "tag=$TAG" >> $GITHUB_OUTPUT
 
       - name: Push Docker Image
