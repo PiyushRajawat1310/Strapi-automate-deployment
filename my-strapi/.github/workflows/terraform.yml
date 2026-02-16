@@ -1,0 +1,33 @@
+name: CD - Terraform Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        required: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform Init
+        run: terraform init
+        working-directory: terraform
+
+      - name: Terraform Apply
+        run: |
+          terraform apply -auto-approve \
+          -var="image=${{ secrets.DOCKER_USERNAME }}/strapi:${{ github.event.inputs.image_tag }}" \
+          -var="aws_region=${{ secrets.AWS_REGION }}" \
+          -var="ami=${{ secrets.AMI_ID }}" \
+          -var="key_name=${{ secrets.KEY_NAME }}"
+        working-directory: terraform
+
+
