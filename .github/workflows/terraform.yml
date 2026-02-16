@@ -19,7 +19,7 @@ jobs:
 
       - name: Terraform Init
         run: terraform init
-        working-directory: terraform
+        working-directory: my-strapi/terraform
 
       - name: Terraform Apply
         run: |
