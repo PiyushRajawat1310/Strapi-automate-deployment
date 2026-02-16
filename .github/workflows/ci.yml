@@ -1,4 +1,4 @@
-name: CI - Build Strapi Image
+name: CI - Build docker image 
 
 on:
   push:
@@ -16,7 +16,7 @@ jobs:
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          password: ${{ secrets.DOCKER_TOKEN }}
 
       - name: Build and Push Docker Image
         uses: docker/build-push-action@v5
