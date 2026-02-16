@@ -1,26 +1,18 @@
-FROM node:20-slim
-
-# Install required dependencies for sqlite
-RUN apt-get update && apt-get install -y \
-    python3 \
-    build-essential \
-    sqlite3 \
-    && rm -rf /var/lib/apt/lists/*
-
-# Set working directory
-WORKDIR /app
-
-# Copy package files
-COPY package*.json ./
-
-# Install dependencies
+FROM node:20-alpine AS build
+RUN apk update && apk add --no-cache build-base gcc autoconf automake libtool zlib-dev libpng-dev vips-dev
+WORKDIR /opt/
+COPY package.json package-lock.json ./
 RUN npm install
-
-# Copy rest of project
+WORKDIR /opt/app
 COPY . .
+RUN npm run build
 
-# Expose Strapi port
+FROM node:20-alpine
+RUN apk add --no-cache vips-dev
+WORKDIR /opt/
+COPY --from=build /opt/node_modules ./node_modules
+WORKDIR /opt/app
+COPY --from=build /opt/app ./
+ENV NODE_ENV=production
 EXPOSE 1337
-
-# Start Strapi directly
-CMD ["npm", "run", "develop"]
+CMD ["npm", "run", "start"]
