@@ -1,18 +1,19 @@
-FROM node:20-alpine AS build
-RUN apk update && apk add --no-cache build-base gcc autoconf automake libtool zlib-dev libpng-dev vips-dev
-WORKDIR /opt/
-COPY package.json package-lock.json ./
+FROM node:20-alpine
+
+WORKDIR /app
+
+COPY package*.json ./
 RUN npm install
-WORKDIR /opt/app
+
 COPY . .
+
+# Build Strapi admin
 RUN npm run build
 
-FROM node:20-alpine
-RUN apk add --no-cache vips-dev
-WORKDIR /opt/
-COPY --from=build /opt/node_modules ./node_modules
-WORKDIR /opt/app
-COPY --from=build /opt/app ./
-ENV NODE_ENV=production
 EXPOSE 1337
+
+ENV NODE_ENV=production
+ENV HOST=0.0.0.0
+ENV PORT=1337
+
 CMD ["npm", "run", "start"]
